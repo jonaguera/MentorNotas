@@ -5,6 +5,24 @@ namespace Jazzyweb\AulasMentor\NotasFrontendBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 class NotasController extends Controller {
+    /* Ejercicio 6.3 */
+
+    public function inspeccionarAction() {
+        $request = $this->getRequest();
+        $session = $this->get('session');
+        echo '<pre>';
+        print_r($_SESSION);
+        print_r($this->get('session'));
+        echo '</pre>';
+        exit;
+    }
+
+    /* Ejercicio 6.2 */
+
+    public function notasConFormatoAction() {
+        $request = $this->getRequest(); // equivalente a $this->get('request');
+        return $this->render('JAMNotasFrontendBundle:Notas:dameNotas.' . $request->getRequestFormat() . '.twig');
+    }
 
     public function indexAction() {
         $request = $this->getRequest(); // equivalente a $this->get('request');
@@ -15,6 +33,22 @@ class NotasController extends Controller {
         switch ($ruta) {
             case 'jamn_homepage':
 
+                /* Ejercicio 6.1  */
+                $request = $this->getRequest(); // equivalente a $this->get('request');
+                echo '<pre>';
+                print_r($request);
+                echo $request->__toString();
+                echo "\n";
+                echo $request->getHttpHost();
+                echo "\n";
+                echo $request->getMethod();
+                echo "\n";
+                echo $request->getPort();
+                echo '</pre>';
+                exit;
+                /*
+                 * Fin ejericio 6.1
+                 */
                 break;
 
             case 'jamn_conetiqueta':

@@ -1,3 +1,15 @@
+jamn_notasconformato:
+     pattern:  /dameNotas.{_format}
+     defaults: { _controller: JAMNotasFrontendBundle:Notas:notasConFormato }
+     requirements:
+       _method: GET
+
+jamn_inspeccionar:
+     pattern:  /inspeccionar
+     defaults: { _controller: JAMNotasFrontendBundle:Notas:inspeccionar }
+     requirements:
+       _method: GET       
+
 jamn_homepage:
      pattern:  /
      defaults: { _controller: JAMNotasFrontendBundle:Notas:index }
