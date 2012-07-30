@@ -1,3 +1,15 @@
+jamn_ORM_crear:
+     pattern:  /estudio_orm/crear
+     defaults: { _controller: JAMNotasFrontendBundle:EstudioORM:crear }
+
+jamn_ORM_recuperar:
+     pattern:  /estudio_orm/recuperar/{id}
+     defaults: { _controller: JAMNotasFrontendBundle:EstudioORM:recuperar }
+
+jamn_ORM_recuperar_notas:
+     pattern:  /estudio_orm/recuperar_notas
+     defaults: { _controller: JAMNotasFrontendBundle:EstudioORM:recuperarNotas }
+
 jamn_notasconformato:
      pattern:  /dameNotas.{_format}
      defaults: { _controller: JAMNotasFrontendBundle:Notas:notasConFormato }
