@@ -1,0 +1,39 @@
+JAMAB_homepage:
+  pattern:  /
+  defaults: { _controller: JazzywebAulasMentorAlimentosBundle:Default:index }
+
+JAMAB_listar:
+  pattern:  /listar
+  defaults: { _controller: JazzywebAulasMentorAlimentosBundle:Default:listar }
+
+JAMAB_insertar:
+  pattern:  /insertar
+  defaults: { _controller: JazzywebAulasMentorAlimentosBundle:Default:insertar }
+
+JAMAB_buscar:
+  pattern:  /buscar
+  defaults: { _controller: JazzywebAulasMentorAlimentosBundle:Default:buscarPorNombre }
+
+JAMAB_buscar_energia:
+  pattern:  /buscar_energia
+  defaults: { _controller: JazzywebAulasMentorAlimentosBundle:Default:buscarPorEnergia }
+
+JAMAB_buscar_combinada:
+  pattern:  /buscar_combinada
+  defaults: { _controller: JazzywebAulasMentorAlimentosBundle:Default:busquedaCombinada }
+
+JAMAB_ver:
+  pattern:  /ver/{id}
+  defaults: { _controller: JazzywebAulasMentorAlimentosBundle:Default:ver }
+
+JAMAB_test:
+  pattern:  /test
+  defaults: { _controller: JazzywebAulasMentorAlimentosBundle:Default:test }
+
+JAMAB_test:
+  pattern:  /test2
+  defaults: { _controller: JazzywebAulasMentorAlimentosBundle:Default:test2 }
+
+JAMAB_testinfosender:
+  pattern:  /testinfosender
+  defaults: { _controller: JazzywebAulasMentorAlimentosBundle:Default:testInfoSender }

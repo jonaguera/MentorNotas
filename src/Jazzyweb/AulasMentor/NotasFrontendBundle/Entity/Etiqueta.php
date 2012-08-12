@@ -2,6 +2,7 @@
 
 namespace Jazzyweb\AulasMentor\NotasFrontendBundle\Entity;
 
+use \Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**

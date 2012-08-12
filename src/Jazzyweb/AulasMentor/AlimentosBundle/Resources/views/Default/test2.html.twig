@@ -1,0 +1,17 @@
+{% extends 'JazzywebAulasMentorAlimentosBundle::layout.html.twig' %}
+
+{% block contenido %}
+
+{% set ultimo_tipo = '' %}
+{% for plato in platos %}
+
+    {% if ultimo_tipo != plato.tipo %}
+    <h1>{{ plato.tipo }}</h1>
+    {% endif %}
+    <li>{{ plato.nombre }}</li>
+
+{% set ultimo_tipo = plato.tipo %}
+{% endfor %}
+
+
+{% endblock %}

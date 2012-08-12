@@ -6,6 +6,9 @@ JAMNotasFrontendBundle:
     resource: "@JAMNotasFrontendBundle/Resources/config/routing.yml"
     prefix:   /
 
+JAMAlimentosBundle:
+    resource: "@JazzywebAulasMentorAlimentosBundle/Resources/config/routing.yml"
+    prefix:   /alimentos
 # Internal routing configuration to handle ESI
 #_internal:
 #   resource: "@FrameworkBundle/Resources/config/routing/internal.xml"

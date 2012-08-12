@@ -1,0 +1,14 @@
+parameters:
+  jamab.model.class: Jazzyweb\AulasMentor\AlimentosBundle\Model\Model
+  jamab.infosender.class: Jazzyweb\AulasMentor\AlimentosBundle\Model\InfoSender
+  jamab.wikilink.class: Jazzyweb\AulasMentor\AlimentosBundle\Model\WikiLink
+
+services:
+  jamab.model:
+    class: %jamab.model.class%
+    arguments: [%database_name%, %database_user%, %database_password%, %database_host%]
+  jamab.infosender:
+    class: %jamab.infosender.class%
+    arguments: [@jamab.model, @mailer ]
+  jamab.wikilink:
+    class: %jamab.wikilink.class%

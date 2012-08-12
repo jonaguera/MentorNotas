@@ -1,0 +1,16 @@
+{% extends 'JazzywebAulasMentorAlimentosBundle::layout.html.twig' %}
+
+{% block contenido %}
+{% for tipo in tipos %}
+    <div> 
+    <h1>{{ tipo.nombre }}</h1>
+    {% for registro in tipo.registros %}
+        <li>
+        {{ registro }}
+        </li>
+    {% endfor %}
+    </div>
+{% endfor %}
+
+
+{% endblock %}
