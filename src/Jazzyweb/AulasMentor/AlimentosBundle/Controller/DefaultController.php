@@ -5,6 +5,7 @@ namespace Jazzyweb\AulasMentor\AlimentosBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Jazzyweb\AulasMentor\AlimentosBundle\Model\Model;
 use Jazzyweb\AulasMentor\AlimentosBundle\Config\Config;
+use Jazzyweb\AulasMentor\AlimentosBundle\Entity\alimentos;
 
 class DefaultController extends Controller {
 
@@ -24,15 +25,25 @@ class DefaultController extends Controller {
         require __DIR__ . '/templates/inicio.php';
     }
 
+    /* ORMizado */
+
     public function listarAction() {
-        $m = $this->get('jamab.model');
+        $em = $this->getDoctrine()->getEntityManager();
+
+        $alimentos = $em->getRepository('JazzywebAulasMentorAlimentosBundle:alimentos')->findAll();
+        if (!$alimentos) {
+            throw $this->createNotFoundException('No hay ningún alimento');
+        }
 
         $params = array(
-            'alimentos' => $this->get('jamab.wikilink')->addWikiLink($m->dameAlimentos()),
+            'alimentos' => $alimentos,
+            'alimentos_wikilink' => $this->get('jamab.wikilink')->addWikiLink($alimentos),
         );
 
         return $this->render('JazzywebAulasMentorAlimentosBundle:Default:mostrarAlimentos.html.twig', $params);
     }
+
+    /* ORMizado */
 
     public function insertarAction() {
         $params = array(
@@ -51,7 +62,32 @@ class DefaultController extends Controller {
 
             // comprobar campos formulario
             if ($m->validarDatos($_POST['nombre'], $_POST['energia'], $_POST['proteina'], $_POST['hc'], $_POST['fibra'], $_POST['grasa'])) {
-                $m->insertarAlimento($_POST['nombre'], $_POST['energia'], $_POST['proteina'], $_POST['hc'], $_POST['fibra'], $_POST['grasa']);
+//                $m->insertarAlimento($_POST['nombre'], $_POST['energia'], $_POST['proteina'], $_POST['hc'], $_POST['fibra'], $_POST['grasa']);
+
+                $alimento = new alimentos();
+                $alimento->setNombre($_POST['nombre']);
+                $alimento->setEnergia($_POST['energia']);
+                $alimento->setProteina($_POST['proteina']);
+                $alimento->setHidratocarbono($_POST['hc']);
+                $alimento->setFibra($_POST['fibra']);
+                $alimento->setGrasatotal($_POST['grasa']);
+
+
+                // Ahora hay que persistirlo
+                // solicitamos el servicio de persistencia (ORM)
+                $em = $this->getDoctrine()->getEntityManager();
+
+                // Le enviamos a dicho servicio el objeto que queremos persistir (no se
+                // realiza query aún
+                $em->persist($alimento);
+
+                // Al final del proceso, cuando hayamos enviado a todos los objetos
+                // al servicio de persistencia, lo enviamos efectivamente a la base de
+                // datos (insert)
+                $em->flush();
+
+
+
                 header('Location: index.php?ctl=listar');
             } else {
                 $params = array(
@@ -69,38 +105,51 @@ class DefaultController extends Controller {
         return $this->render('JazzywebAulasMentorAlimentosBundle:Default:formInsertar.html.twig', $params);
     }
 
+    /* ORMizado */
+
     public function buscarPorNombreAction() {
         $params = array(
             'nombre' => '',
-            'resultado' => array(),
+            'alimentos' => '',
+            'alimentos_wikilink' => '',
         );
-
-        $m = $this->get('jamab.model');
-
-
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $params['nombre'] = $_POST['nombre'];
-            $params['resultado'] = $this->get('jamab.wikilink')->addWikiLink($m->buscarAlimentosPorNombre($_POST['nombre']));
+            $em = $this->getDoctrine()->getEntityManager();
+            $query = $em->createQuery("SELECT a FROM JazzywebAulasMentorAlimentosBundle:alimentos a WHERE a.nombre LIKE :nombre")->setParameters(array('nombre' => $_POST['nombre']));
+            $alimentos = $query->getResult();
+            $params = array(
+                'nombre' => $_POST['nombre'],
+                'alimentos' => $alimentos,
+                'alimentos_wikilink' => $this->get('jamab.wikilink')->addWikiLink($alimentos),
+            );
         }
-
         return $this->render('JazzywebAulasMentorAlimentosBundle:Default:buscarPorNombre.html.twig', $params);
     }
+
+    /* ORMizado */
 
     public function buscarPorEnergiaAction() {
         $params = array(
             'energia_min' => '',
             'energia_max' => '',
-            'resultado' => array(),
+            'alimentos' => '',
+            'alimentos_wikilink' => '',
         );
-
-        $m = $this->get('jamab.model');
-
-
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $params['resultado'] = $this->get('jamab.wikilink')->addWikiLink($m->buscarPorEnergia($_POST['energia_min'], $_POST['energia_max']));
+            $em = $this->getDoctrine()->getEntityManager();
+            $query = $em->createQuery("SELECT a FROM JazzywebAulasMentorAlimentosBundle:alimentos a WHERE a.energia >= :energia_min and a.energia <= :energia_max")->setParameters(array('energia_min' => $_POST['energia_min'], 'energia_max' => $_POST['energia_max'],));
+            $alimentos = $query->getResult();
+            $params = array(
+                'energia_min' => $_POST['energia_min'],
+                'energia_max' => $_POST['energia_max'],
+                'alimentos' => $alimentos,
+                'alimentos_wikilink' => $this->get('jamab.wikilink')->addWikiLink($alimentos),
+            );
         }
         return $this->render('JazzywebAulasMentorAlimentosBundle:Default:buscarPorEnergia.html.twig', $params);
     }
+
+    /* ORMizado */
 
     public function busquedaCombinadaAction() {
         $params = array(
@@ -114,47 +163,77 @@ class DefaultController extends Controller {
             'fibra_max' => '',
             'grasatotal_min' => '',
             'grasatotal_max' => '',
-            'resultado' => array(),
+            'alimentos' => '',
+            'alimentos_wikilink' => '',
         );
-
-        $m = $this->get('jamab.model');
-
-
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $params['resultado'] = $this->get('jamab.wikilink')->addWikiLink(
-                    $m->busquedaCombinada(array(
-                        'energia_min' => $_POST['energia_min'],
-                        'energia_max' => $_POST['energia_max'],
-                        'proteina_min' => $_POST['proteina_min'],
-                        'proteina_max' => $_POST['proteina_max'],
-                        'hidratocarbono_min' => $_POST['hidratocarbono_min'],
-                        'hidratocarbono_max' => $_POST['hidratocarbono_max'],
-                        'fibra_min' => $_POST['fibra_min'],
-                        'fibra_max' => $_POST['fibra_max'],
-                        'grasatotal_min' => $_POST['grasatotal_min'],
-                        'grasatotal_max' => $_POST['grasatotal_max']
-                            )
-                    )
+
+
+            $em = $this->getDoctrine()->getEntityManager();
+            $alimentos = $em->getRepository('JazzywebAulasMentorAlimentosBundle:alimentos');
+            $qb = $alimentos->createQueryBuilder('alimentos');
+            $qb->select('a')
+                    ->from('JazzywebAulasMentorAlimentosBundle:alimentos', 'a')
+                    ->orderBy('a.energia');
+
+            if ($_POST['energia_min'])
+                $qb->andWhere('a.energia >= ' . $_POST['energia_min']);
+            if ($_POST['energia_max'])
+                $qb->andWhere('a.energia <= ' . $_POST['energia_max']);
+            if ($_POST['proteina_min'])
+                $qb->andWhere('a.proteina >= ' . $_POST['proteina_min']);
+            if ($_POST['proteina_max'])
+                $qb->andWhere('a.proteina <= ' . $_POST['proteina_max']);
+            if ($_POST['hidratocarbono_min'])
+                $qb->andWhere('a.hidratocarbono >= ' . $_POST['hidratocarbono_min']);
+            if ($_POST['hidratocarbono_max'])
+                $qb->andWhere('a.hidratocarbono <= ' . $_POST['hidratocarbono_max']);
+            if ($_POST['fibra_min'])
+                $qb->andWhere('a.fibra >= ' . $_POST['fibra_min']);
+            if ($_POST['fibra_max'])
+                $qb->andWhere('a.fibra <= ' . $_POST['fibra_max']);
+            if ($_POST['grasatotal_min'])
+                $qb->andWhere('a.grasatotal >= ' . $_POST['grasatotal_min']);
+            if ($_POST['grasatotal_max'])
+                $qb->andWhere('a.grasatotal <= ' . $_POST['grasatotal_max']);
+
+            $query = $qb->getQuery();
+            $alimentos = $query->execute();
+
+
+            $params = array(
+                'energia_min' => $_POST['energia_min'],
+                'energia_max' => $_POST['energia_max'],
+                'proteina_min' => $_POST['proteina_min'],
+                'proteina_max' => $_POST['proteina_max'],
+                'hidratocarbono_min' => $_POST['hidratocarbono_min'],
+                'hidratocarbono_max' => $_POST['hidratocarbono_max'],
+                'fibra_min' => $_POST['fibra_min'],
+                'fibra_max' => $_POST['fibra_max'],
+                'grasatotal_min' => $_POST['grasatotal_min'],
+                'grasatotal_max' => $_POST['grasatotal_max'],
+                'alimentos' => $alimentos,
+                'alimentos_wikilink' => $this->get('jamab.wikilink')->addWikiLink($alimentos),
             );
         }
-
         return $this->render('JazzywebAulasMentorAlimentosBundle:Default:busquedaCombinada.html.twig', $params);
     }
 
+    /* ORMizado */
+
     public function verAction($id) {
 
-        $m = $this->get('jamab.model');
 
 
-        $alimento = $m->dameAlimento($id);
+        $em = $this->getDoctrine()->getEntityManager();
 
-
+        $alimento = $em->getRepository('JazzywebAulasMentorAlimentosBundle:alimentos')->find($id);
         if (!$alimento) {
-            throw new \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException();
+            throw $this->createNotFoundException('No existe alimento con id ' . $id);
         }
 
-        $params = $alimento;
-        return $this->render('JazzywebAulasMentorAlimentosBundle:Default:verAlimento.html.twig', $params);
+
+        return $this->render('JazzywebAulasMentorAlimentosBundle:Default:verAlimento.html.twig', array('alimento' => $alimento));
     }
 
     public function testInfoSenderAction() {
@@ -166,79 +245,5 @@ class DefaultController extends Controller {
                         '<html><body><h2>Se ha enviado información a
               jonaguera@gmail.com</h2></body></html>');
     }
-
-    public function testAction() {
-        $params = array(
-            'tipos' => array(
-                array(
-                    'nombre' => 'primeros',
-                    'registros' => array(
-                        'ensalada',
-                        'pasta',
-                        'arroz',
-                        'alubias',
-                    )
-                ),
-                array(
-                    'nombre' => 'segundos',
-                    'registros' => array(
-                        'chuleta',
-                        'besugo',
-                        'merluza',
-                        'pollo',
-                    )
-                ),
-                array(
-                    'nombre' => 'postres',
-                    'registros' => array(
-                        'tarta',
-                        'helado',
-                        'yogur',
-                        'cuajada',
-                    )
-                ),
-                array(
-                    'nombre' => 'cafes',
-                    'registros' => array(
-                        'americano',
-                        'solo',
-                        'con leche',
-                        'escoces',
-                    )
-                ),
-            )
-        );
-        return $this->render('JazzywebAulasMentorAlimentosBundle:Default:test.html.twig', $params);
-    }
-    
-    public function test2Action() {
-        $params = array(
-            'platos' => array(
-                array(
-                    'tipo' => 'primeros',
-                    'nombre' => 'ensalada',
-                    ),
-                array(
-                    'tipo' => 'primeros',
-                    'nombre' => 'pasta',
-                    ),
-                array(
-                    'tipo' => 'segundos',
-                    'nombre' => 'chuleta',
-                    ),
-                array(
-                    'tipo' => 'segundos',
-                    'nombre' => 'pescado',
-                    ),
-                array(
-                    'tipo' => 'postres',
-                    'nombre' => 'pastel',
-                    )
-                )
-        );
-        return $this->render('JazzywebAulasMentorAlimentosBundle:Default:test2.html.twig', $params);
-    }
-    
-    
 
 }

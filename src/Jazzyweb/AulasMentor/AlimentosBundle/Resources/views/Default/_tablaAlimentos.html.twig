@@ -10,7 +10,7 @@
         <td><a href="{{ path('JAMAB_ver', {'id': alimento.id}) }}">{{alimento.nombre}}</a></td>
         <td>{{ alimento.energia }}</td>
         <td>{{ alimento.grasatotal }}</td>
-        <td><a href="{{ alimento.wikilink }}" target="_blank"><img src="{{ asset('bundles/jazzywebaulasmentoralimentos/images/wikipedia.jpg') }}"></a></td>
+        <td><a href="{{ alimentos_wikilink[alimento.nombre] }}" target="_blank"><img src="{{ asset('bundles/jazzywebaulasmentoralimentos/images/wikipedia.jpg') }}"></a></td>
     </tr>
     
   
