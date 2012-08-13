@@ -1,0 +1,23 @@
+{% extends '::base.html.twig' %}
+
+{% block body %}
+
+<h1>Como se pintan los formularios: El formulario usuario </h1>
+
+<h2>Una manera más "verbosa", pero con más control sobre los widgets</h2>
+<form action="#" method="post" {{ form_enctype(form) }}>
+{{ form_errors(form) }}
+
+{{ form_row(form.nombre) }}
+{{ form_row(form.apellidos) }}
+{{ form_row(form.email) }}
+{{ form_row(form.isActive) }}
+{{ form_row(form.username) }}
+{{ form_row(form.password) }}
+
+{{ form_rest(form) }}
+
+    <input type="submit" />
+</form>
+
+{% endblock %}
