@@ -1,3 +1,7 @@
+jamn_nuevanota:
+     pattern:  /nuevanota
+     defaults: { _controller: JAMNotasFrontendBundle:Notas:nuevanota }
+     
 jamn_EVF_form_usuario:
      pattern: /estudio_valyforms/form_usuario
      defaults: { _controller: JAMNotasFrontendBundle:EstudioValidacionYFormulario:formUsuario }

@@ -4,6 +4,7 @@ namespace Jazzyweb\AulasMentor\NotasFrontendBundle\Entity;
 
 use \Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Nota
@@ -25,21 +26,23 @@ class Nota {
     /**
      * @var string $titulo
      *
-     * @ORM\Column(name="titulo", type="string", length=255)
+     * @ORM\Column(name="titulo", type="string", length=29)
+     * @Assert\NotBlank()
+     * @Assert\MaxLength(29)
      */
     private $titulo;
 
     /**
      * @var string $texto
      *
-     * @ORM\Column(name="texto", type="string", length=255)
+     * @ORM\Column(name="texto", type="string", length=255, nullable=true)
      */
     private $texto;
 
     /**
      * @var datetime $fecha
      *
-     * @ORM\Column(name="fecha", type="datetime")
+     * @ORM\Column(name="fecha", type="datetime", nullable=true)
      */
     private $fecha;
 
@@ -49,6 +52,12 @@ class Nota {
      * @ORM\Column(name="path", type="string", length=255)
      */
     private $path;
+
+
+    /**
+    * @Assert\File(maxSize="6000000")
+    */
+    public $file;
 
     /**
      * Get id
@@ -130,6 +139,7 @@ class Nota {
     public function getPath() {
         return $this->path;
     }
+
 
 ////ASOCIACIONES////
 

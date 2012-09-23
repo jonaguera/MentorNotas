@@ -3,6 +3,8 @@
 namespace Jazzyweb\AulasMentor\NotasFrontendBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Jazzyweb\AulasMentor\NotasFrontendBundle\Form\Type\NotaType;
+use Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Nota;
 
 class NotasController extends Controller {
     /* Ejercicio 6.3 */
@@ -35,19 +37,19 @@ class NotasController extends Controller {
 
                 /* Ejercicio 6.1  */
                 /*
-                $request = $this->getRequest(); // equivalente a $this->get('request');
-                echo '<pre>';
-                print_r($request);
-                echo $request->__toString();
-                echo "\n";
-                echo $request->getHttpHost();
-                echo "\n";
-                echo $request->getMethod();
-                echo "\n";
-                echo $request->getPort();
-                echo '</pre>';
-                exit;
-                */
+                  $request = $this->getRequest(); // equivalente a $this->get('request');
+                  echo '<pre>';
+                  print_r($request);
+                  echo $request->__toString();
+                  echo "\n";
+                  echo $request->getHttpHost();
+                  echo "\n";
+                  echo $request->getMethod();
+                  echo "\n";
+                  echo $request->getPort();
+                  echo '</pre>';
+                  exit;
+                 */
                 /*
                  * Fin ejericio 6.1
                  */
@@ -101,6 +103,36 @@ class NotasController extends Controller {
                     'etiquetas' => $etiquetas,
                     'notas' => $notas,
                     'nota_seleccionada' => $nota_seleccionada,
+                ));
+    }
+
+    public function nuevanotaAction() {
+        $request = $this->getRequest();
+        $nota = new Nota();
+
+        $form = $this->createForm(new NotaType(), $nota);
+
+        if ($request->getMethod() == 'POST') {
+            $form->bindRequest($request);
+            if ($form->isValid()) {
+                // Se procesa el formulario
+
+                $em = $this->getDoctrine()->getEntityManager();
+
+                $nota->upload();
+
+                $em->persist($nota);
+                $em->flush();
+
+                $this->get('session')->setFlash('mensaje', 'Nota subida');
+                return $this->redirect($this->generateUrl('jamn_homepage'));
+
+            }
+        }
+
+        return $this->render(
+                        'JAMNotasFrontendBundle:Notas:nuevanota.html.twig', array(
+                    'form' => $form->createView(),
                 ));
     }
 
