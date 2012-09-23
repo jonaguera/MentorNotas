@@ -56,52 +56,53 @@ class DefaultController extends Controller {
         );
 
         $m = $this->get('jamab.model');
+        $params['mensaje'] = '';
 
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-            // comprobar campos formulario
-            if ($m->validarDatos($_POST['nombre'], $_POST['energia'], $_POST['proteina'], $_POST['hc'], $_POST['fibra'], $_POST['grasa'])) {
-//                $m->insertarAlimento($_POST['nombre'], $_POST['energia'], $_POST['proteina'], $_POST['hc'], $_POST['fibra'], $_POST['grasa']);
 
-                $alimento = new alimentos();
-                $alimento->setNombre($_POST['nombre']);
-                $alimento->setEnergia($_POST['energia']);
-                $alimento->setProteina($_POST['proteina']);
-                $alimento->setHidratocarbono($_POST['hc']);
-                $alimento->setFibra($_POST['fibra']);
-                $alimento->setGrasatotal($_POST['grasa']);
+            // Nueva validación
 
+            $validador = $this->get('validator');
 
-                // Ahora hay que persistirlo
-                // solicitamos el servicio de persistencia (ORM)
+            $alimento = new alimentos();
+            $alimento->setNombre($_POST['form']['nombre']);
+            $alimento->setEnergia($_POST['form']['energia']);
+            $alimento->setProteina($_POST['form']['proteina']);
+            $alimento->setHidratocarbono($_POST['form']['hidratocarbono']);
+            $alimento->setFibra($_POST['form']['fibra']);
+            $alimento->setGrasatotal($_POST['form']['grasatotal']);
+
+            $errors = $validador->validate($alimento);
+
+            if (!count($errors)) {
                 $em = $this->getDoctrine()->getEntityManager();
-
-                // Le enviamos a dicho servicio el objeto que queremos persistir (no se
-                // realiza query aún
                 $em->persist($alimento);
-
-                // Al final del proceso, cuando hayamos enviado a todos los objetos
-                // al servicio de persistencia, lo enviamos efectivamente a la base de
-                // datos (insert)
                 $em->flush();
-
-
-
-                header('Location: index.php?ctl=listar');
             } else {
-                $params = array(
-                    'nombre' => $_POST['nombre'],
-                    'energia' => $_POST['energia'],
-                    'proteina' => $_POST['proteina'],
-                    'hc' => $_POST['hc'],
-                    'fibra' => $_POST['fibra'],
-                    'grasa' => $_POST['grasa'],
-                );
-                $params['mensaje'] = 'No se ha podido insertar el alimento. Revisa el formulario';
+                $params['mensaje'] = 'No se ha podido insertar el alimento. Revisa el formulario para encontrar el problema';
             }
         }
 
+        $alimento = new alimentos();
+
+        $alimento->setNombre("Nombre del alimento");
+        $alimento->setEnergia(0);
+        $alimento->setProteina(0);
+        $alimento->setHidratocarbono(0);
+        $alimento->setFibra(0);
+        $alimento->setGrasatotal(0);
+
+        $form = $this->createFormBuilder($alimento)
+                ->add('nombre', 'text')
+                ->add('energia', 'text')
+                ->add('proteina', 'text')
+                ->add('hidratocarbono', 'text')
+                ->add('fibra', 'text')
+                ->add('grasatotal', 'text')
+                ->getForm();
+        $params['form'] = $form->createView();
         return $this->render('JazzywebAulasMentorAlimentosBundle:Default:formInsertar.html.twig', $params);
     }
 
@@ -112,17 +113,28 @@ class DefaultController extends Controller {
             'nombre' => '',
             'alimentos' => '',
             'alimentos_wikilink' => '',
+            'form' => '',
         );
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $em = $this->getDoctrine()->getEntityManager();
-            $query = $em->createQuery("SELECT a FROM JazzywebAulasMentorAlimentosBundle:alimentos a WHERE a.nombre LIKE :nombre")->setParameters(array('nombre' => $_POST['nombre']));
+            $query = $em->createQuery("SELECT a FROM JazzywebAulasMentorAlimentosBundle:alimentos a WHERE a.nombre LIKE :nombre")->setParameters(array('nombre' => $_POST['form']['nombre']));
             $alimentos = $query->getResult();
             $params = array(
-                'nombre' => $_POST['nombre'],
+                'nombre' => $_POST['form']['nombre'],
                 'alimentos' => $alimentos,
                 'alimentos_wikilink' => $this->get('jamab.wikilink')->addWikiLink($alimentos),
             );
         }
+
+        $alimento = new alimentos();
+
+        $alimento->setNombre("Introduce el nombre a buscar ...");
+
+        $form = $this->createFormBuilder($alimento)
+                ->add('nombre', 'text')
+                ->getForm();
+        $params['form'] = $form->createView();
+
         return $this->render('JazzywebAulasMentorAlimentosBundle:Default:buscarPorNombre.html.twig', $params);
     }
 
@@ -130,22 +142,32 @@ class DefaultController extends Controller {
 
     public function buscarPorEnergiaAction() {
         $params = array(
-            'energia_min' => '',
-            'energia_max' => '',
             'alimentos' => '',
-            'alimentos_wikilink' => '',
+            'form' => '',
         );
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $em = $this->getDoctrine()->getEntityManager();
-            $query = $em->createQuery("SELECT a FROM JazzywebAulasMentorAlimentosBundle:alimentos a WHERE a.energia >= :energia_min and a.energia <= :energia_max")->setParameters(array('energia_min' => $_POST['energia_min'], 'energia_max' => $_POST['energia_max'],));
+            $query = $em->createQuery("SELECT a FROM JazzywebAulasMentorAlimentosBundle:alimentos a WHERE a.energia >= :energia_min and a.energia <= :energia_max")->setParameters(array('energia_min' => $_POST['form']['energia_min'], 'energia_max' => $_POST['form']['energia_max'],));
             $alimentos = $query->getResult();
             $params = array(
-                'energia_min' => $_POST['energia_min'],
-                'energia_max' => $_POST['energia_max'],
+                'energia_min' => $_POST['form']['energia_min'],
+                'energia_max' => $_POST['form']['energia_max'],
                 'alimentos' => $alimentos,
                 'alimentos_wikilink' => $this->get('jamab.wikilink')->addWikiLink($alimentos),
             );
         }
+
+        $alimento = new alimentos();
+        $alimento->setEnergiaMin(0);
+        $alimento->setEnergiaMax(999);
+
+
+        $form = $this->createFormBuilder($alimento)
+                ->add('energia_min', 'text')
+                ->add('energia_max', 'text')
+                ->getForm();
+        $params['form'] = $form->createView();
+        
         return $this->render('JazzywebAulasMentorAlimentosBundle:Default:buscarPorEnergia.html.twig', $params);
     }
 
@@ -153,18 +175,8 @@ class DefaultController extends Controller {
 
     public function busquedaCombinadaAction() {
         $params = array(
-            'energia_min' => '',
-            'energia_max' => '',
-            'proteina_min' => '',
-            'proteina_max' => '',
-            'hidratocarbono_min' => '',
-            'hidratocarbono_max' => '',
-            'fibra_min' => '',
-            'fibra_max' => '',
-            'grasatotal_min' => '',
-            'grasatotal_max' => '',
             'alimentos' => '',
-            'alimentos_wikilink' => '',
+            'form' => '',
         );
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -176,46 +188,63 @@ class DefaultController extends Controller {
                     ->from('JazzywebAulasMentorAlimentosBundle:alimentos', 'a')
                     ->orderBy('a.energia');
 
-            if ($_POST['energia_min'])
-                $qb->andWhere('a.energia >= ' . $_POST['energia_min']);
-            if ($_POST['energia_max'])
-                $qb->andWhere('a.energia <= ' . $_POST['energia_max']);
-            if ($_POST['proteina_min'])
-                $qb->andWhere('a.proteina >= ' . $_POST['proteina_min']);
-            if ($_POST['proteina_max'])
-                $qb->andWhere('a.proteina <= ' . $_POST['proteina_max']);
-            if ($_POST['hidratocarbono_min'])
-                $qb->andWhere('a.hidratocarbono >= ' . $_POST['hidratocarbono_min']);
-            if ($_POST['hidratocarbono_max'])
-                $qb->andWhere('a.hidratocarbono <= ' . $_POST['hidratocarbono_max']);
-            if ($_POST['fibra_min'])
-                $qb->andWhere('a.fibra >= ' . $_POST['fibra_min']);
-            if ($_POST['fibra_max'])
-                $qb->andWhere('a.fibra <= ' . $_POST['fibra_max']);
-            if ($_POST['grasatotal_min'])
-                $qb->andWhere('a.grasatotal >= ' . $_POST['grasatotal_min']);
-            if ($_POST['grasatotal_max'])
-                $qb->andWhere('a.grasatotal <= ' . $_POST['grasatotal_max']);
+            if ($_POST['form']['energia_min'])
+                $qb->andWhere('a.energia >= ' . $_POST['form']['energia_min']);
+            if ($_POST['form']['energia_max'])
+                $qb->andWhere('a.energia <= ' . $_POST['form']['energia_max']);
+            if ($_POST['form']['proteina_min'])
+                $qb->andWhere('a.proteina >= ' . $_POST['form']['proteina_min']);
+            if ($_POST['form']['proteina_max'])
+                $qb->andWhere('a.proteina <= ' . $_POST['form']['proteina_max']);
+            if ($_POST['form']['hidratocarbono_min'])
+                $qb->andWhere('a.hidratocarbono >= ' . $_POST['form']['hidratocarbono_min']);
+            if ($_POST['form']['hidratocarbono_max'])
+                $qb->andWhere('a.hidratocarbono <= ' . $_POST['form']['hidratocarbono_max']);
+            if ($_POST['form']['fibra_min'])
+                $qb->andWhere('a.fibra >= ' . $_POST['form']['fibra_min']);
+            if ($_POST['form']['fibra_max'])
+                $qb->andWhere('a.fibra <= ' . $_POST['form']['fibra_max']);
+            if ($_POST['form']['grasatotal_min'])
+                $qb->andWhere('a.grasatotal >= ' . $_POST['form']['grasatotal_min']);
+            if ($_POST['form']['grasatotal_max'])
+                $qb->andWhere('a.grasatotal <= ' . $_POST['form']['grasatotal_max']);
 
             $query = $qb->getQuery();
             $alimentos = $query->execute();
 
 
             $params = array(
-                'energia_min' => $_POST['energia_min'],
-                'energia_max' => $_POST['energia_max'],
-                'proteina_min' => $_POST['proteina_min'],
-                'proteina_max' => $_POST['proteina_max'],
-                'hidratocarbono_min' => $_POST['hidratocarbono_min'],
-                'hidratocarbono_max' => $_POST['hidratocarbono_max'],
-                'fibra_min' => $_POST['fibra_min'],
-                'fibra_max' => $_POST['fibra_max'],
-                'grasatotal_min' => $_POST['grasatotal_min'],
-                'grasatotal_max' => $_POST['grasatotal_max'],
+                'energia_min' => $_POST['form']['energia_min'],
+                'energia_max' => $_POST['form']['energia_max'],
+                'proteina_min' => $_POST['form']['proteina_min'],
+                'proteina_max' => $_POST['form']['proteina_max'],
+                'hidratocarbono_min' => $_POST['form']['hidratocarbono_min'],
+                'hidratocarbono_max' => $_POST['form']['hidratocarbono_max'],
+                'fibra_min' => $_POST['form']['fibra_min'],
+                'fibra_max' => $_POST['form']['fibra_max'],
+                'grasatotal_min' => $_POST['form']['grasatotal_min'],
+                'grasatotal_max' => $_POST['form']['grasatotal_max'],
                 'alimentos' => $alimentos,
                 'alimentos_wikilink' => $this->get('jamab.wikilink')->addWikiLink($alimentos),
             );
         }
+        $alimento = new alimentos();
+
+
+        $form = $this->createFormBuilder($alimento)
+                ->add('energia_min', 'text')
+                ->add('energia_max', 'text')
+                ->add('proteina_min', 'text')
+                ->add('proteina_max', 'text')
+                ->add('hidratocarbono_min', 'text')
+                ->add('hidratocarbono_max', 'text')
+                ->add('fibra_min', 'text')
+                ->add('fibra_max', 'text')
+                ->add('grasatotal_min', 'text')
+                ->add('grasatotal_max', 'text')
+                ->getForm();
+        $params['form'] = $form->createView();
+        
         return $this->render('JazzywebAulasMentorAlimentosBundle:Default:busquedaCombinada.html.twig', $params);
     }
 
