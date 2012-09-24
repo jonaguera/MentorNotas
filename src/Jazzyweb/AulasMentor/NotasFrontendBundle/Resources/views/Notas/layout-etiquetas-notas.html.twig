@@ -28,9 +28,14 @@
  {% endblock %}
 
  {% block body %}
+     <a href="{{path('jamn_logout')}}">Cerrar sesión </a>
 
     <h1>Implementación de la lógica de control de la aplicación</h1>
-
+     
+     {% if not is_granted('ROLE_PREMIUM') %}
+     <h2>PUBLICIDAD AQUÍ</h2>
+     {% endif %}
+     
      {% if app.session.getFlash('mensaje') %}
     <div id="etiquetas" class="marco mensaje">
         <b>{{ app.session.getFlash('mensaje') }}</b>

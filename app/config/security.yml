@@ -1,16 +1,24 @@
 security:
     encoders:
         Symfony\Component\Security\Core\User\User: plaintext
+        Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Usuario:
+            algorithm:   sha1
+            iterations: 1
+            encode_as_base64: false          
 
     role_hierarchy:
         ROLE_ADMIN:       ROLE_USER
         ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+        ROLE_PREMIUM: [ ROLE_REGISTRADO ]
 
     providers:
         in_memory:
             users:
-                user:  { password: userpass, roles: [ 'ROLE_USER' ] }
-                admin: { password: adminpass, roles: [ 'ROLE_ADMIN' ] }
+                alberto:  { password: pruebas, roles: [ 'ROLE_REGISTRADO' ] }
+                maria: { password: pruebas, roles: [ 'ROLE_PREMIUM' ] }
+                miguel: { password: pruebas, roles: [ 'ROLE_ADMIN' ] }                
+        base_datos:
+            entity: { class: JAMNotasFrontendBundle:Usuario, property: username }
 
     firewalls:
         dev:
@@ -32,7 +40,27 @@ security:
             #anonymous: ~
             #http_basic:
             #    realm: "Secured Demo Area"
+            
+        # anticortafuegos. Hace publicas ciertas rutas
+        jamn_area_publica:
+            pattern: ^/notas/(registro|activar|tarifas|contratar|login$)
+            security: false
+        
+        # cortafuegos. Protege todas las rutas de notas (excepto las definidas antes)    
+        jamn_area_protegida:
+            pattern: ^/notas/
+            # Con formulario HTTP BASIC
+            #http_basic:
+            #    realm: "Area protegida"            
+            provider: base_datos
+            form_login:
+                login_path:  /notas/login
+                check_path:  /notas/login_check    
+            logout:
+                path:   /notas/logout
+                target: /notas
 
     access_control:
-        #- { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, requires_channel: https }
-        #- { path: ^/_internal, roles: IS_AUTHENTICATED_ANONYMOUSLY, ip: 127.0.0.1 }
+        - { path: ^/notas/miespacio, roles: ROLE_PREMIUM }
+        - { path: ^/administracion, roles: ROLE_ADMIN, requires_channel: https }
+        - { path: ^/notas, roles: ROLE_REGISTRADO } 
