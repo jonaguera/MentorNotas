@@ -6,6 +6,7 @@ jamn_login:
 
 jamn_login_check:
      pattern: /login_check
+     
 jamn_nuevanota:
      pattern:  /nuevanota
      defaults: { _controller: JAMNotasFrontendBundle:Notas:nuevanota }

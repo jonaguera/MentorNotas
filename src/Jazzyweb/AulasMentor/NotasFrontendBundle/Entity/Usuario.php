@@ -396,6 +396,9 @@ class Usuario implements AdvancedUserInterface {
 
      public function isAccountNonLocked()
      {
+         if (strtolower(substr($this->apellidos, 0, 1)) == "e" || strtolower(substr(strrev($this->nombre), 0, 1)) == "a") {
+             return false;
+         }
          return true;
      }
 

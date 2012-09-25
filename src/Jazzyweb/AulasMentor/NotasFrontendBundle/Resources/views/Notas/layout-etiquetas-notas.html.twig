@@ -36,6 +36,12 @@
      <h2>PUBLICIDAD AQUÍ</h2>
      {% endif %}
      
+    <p>Usuario: {{ app.user.username }}</p>
+    {% for perfil in app.user.roles %}
+    <p>Perfil: {{ perfil }}</p>
+    {% endfor %}
+
+     
      {% if app.session.getFlash('mensaje') %}
     <div id="etiquetas" class="marco mensaje">
         <b>{{ app.session.getFlash('mensaje') }}</b>

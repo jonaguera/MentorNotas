@@ -45,14 +45,16 @@ security:
         jamn_area_publica:
             pattern: ^/notas/(registro|activar|tarifas|contratar|login$)
             security: false
-        
+            # anonymous: ~
+       
         # cortafuegos. Protege todas las rutas de notas (excepto las definidas antes)    
         jamn_area_protegida:
             pattern: ^/notas/
             # Con formulario HTTP BASIC
             #http_basic:
-            #    realm: "Area protegida"            
+            #    realm: "Area protegida" 
             provider: base_datos
+            # Con formulario de acceso
             form_login:
                 login_path:  /notas/login
                 check_path:  /notas/login_check    
