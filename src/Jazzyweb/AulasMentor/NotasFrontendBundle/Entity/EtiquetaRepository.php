@@ -21,4 +21,20 @@ class EtiquetaRepository extends EntityRepository {
         return $query->getResult();
     }
 
+    public function findOneByTextoAndUsuario($tag, $usuario) {
+        $query = $this->getEntityManager()->createQuery(
+                        "SELECT e FROM JAMNotasFrontendBundle:Etiqueta e
+                      JOIN  e.usuario u where u.id = :userid 
+                      AND e.texto = :tag
+                        ORDER BY e.texto ASC")
+                ->setParameters(array('userid' => $usuario->getId(), 'tag' => $tag,));
+
+        $result = $query->getResult();
+        if (count($result) > 0) {
+            return $result[0];
+        }else{
+            return null;
+        }        
+    }
+
 }

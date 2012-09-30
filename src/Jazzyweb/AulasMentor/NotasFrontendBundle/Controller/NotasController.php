@@ -5,26 +5,9 @@ namespace Jazzyweb\AulasMentor\NotasFrontendBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Jazzyweb\AulasMentor\NotasFrontendBundle\Form\Type\NotaType;
 use Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Nota;
+use Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Etiqueta;
 
 class NotasController extends Controller {
-    /* Ejercicio 6.3 */
-
-    public function inspeccionarAction() {
-        $request = $this->getRequest();
-        $session = $this->get('session');
-        echo '<pre>';
-        print_r($_SESSION);
-        print_r($this->get('session'));
-        echo '</pre>';
-        exit;
-    }
-
-    /* Ejercicio 6.2 */
-
-    public function notasConFormatoAction() {
-        $request = $this->getRequest(); // equivalente a $this->get('request');
-        return $this->render('JAMNotasFrontendBundle:Notas:dameNotas.' . $request->getRequestFormat() . '.twig');
-    }
 
     public function indexAction() {
         $request = $this->getRequest(); // equivalente a $this->get('request');
@@ -34,25 +17,6 @@ class NotasController extends Controller {
 
         switch ($ruta) {
             case 'jamn_homepage':
-
-                /* Ejercicio 6.1  */
-                /*
-                  $request = $this->getRequest(); // equivalente a $this->get('request');
-                  echo '<pre>';
-                  print_r($request);
-                  echo $request->__toString();
-                  echo "\n";
-                  echo $request->getHttpHost();
-                  echo "\n";
-                  echo $request->getMethod();
-                  echo "\n";
-                  echo $request->getPort();
-                  echo '</pre>';
-                  exit;
-                 */
-                /*
-                 * Fin ejericio 6.1
-                 */
                 break;
 
             case 'jamn_conetiqueta':
@@ -73,37 +37,67 @@ class NotasController extends Controller {
                 break;
         }
 
-        list($etiquetas, $notas, $nota_seleccionada) = $this->dameEtiquetasYNotas();
-
+        list($etiquetas, $notas, $notaSeleccionada) = $this->dameEtiquetasYNotas();
+        // creamos un formulario para borrar la nota
+        if ($notaSeleccionada instanceof Nota) {
+            $deleteForm = $this
+                    ->createDeleteForm($notaSeleccionada->getId())
+                    ->createView();
+        } else {
+            $deleteForm = null;
+        }
         return $this->render('JAMNotasFrontendBundle:Notas:index.html.twig', array(
                     'etiquetas' => $etiquetas,
                     'notas' => $notas,
-                    'nota_seleccionada' => $nota_seleccionada,
+                    'nota_seleccionada' => $notaSeleccionada,
+                    'delete_form' => $deleteForm,
                 ));
     }
 
     public function nuevaAction() {
         $request = $this->getRequest();
-        $session = $this->get('session');
-
-        if ($request->getMethod() == 'POST') {
-
-            // si los datos que vienen en la request son buenos guarda la nota
-
-            $session->setFlash('mensaje', 'Se debería guardar la nota:'
-                    . $request->get('nombre') . '. Como aun no disponemos de un
-                         servicio para persistir los datos, mostramos la nota 1');
-
-            return $this->redirect($this->generateUrl('jamn_nota', array('id' => 1)));
-        }
 
         list($etiquetas, $notas, $nota_seleccionada) = $this->dameEtiquetasYNotas();
 
-        return $this->render('JAMNotasFrontendBundle:Notas:nueva.html.twig', array(
-                    'etiquetas' => $etiquetas,
-                    'notas' => $notas,
-                    'nota_seleccionada' => $nota_seleccionada,
-                ));
+        $em = $this->getDoctrine()->getEntityManager();
+
+        $nota = new Nota();
+        $newForm = $this->createForm(new NotaType(), $nota);
+
+        if ($request->getMethod() == 'POST') {
+            $newForm->bindRequest($request);
+
+            if ($newForm->isValid()) {
+                $usuario = $this->get('security.context')->getToken()->getUser();
+
+                $item = $request->get('item');
+                $this->actualizaEtiquetas($nota, $item['tags'], $usuario);
+
+                $nota->setUsuario($usuario);
+                $nota->setFecha(new \DateTime());
+
+                if ($newForm['file']->getData() != '')
+                    $nota->upload($usuario->getUsername());
+// TODO: Le he tenido que definir una ruta vacía para evitar caer en un error 
+                $nota->setPath("");
+                $em->persist($nota);
+                $em->flush();
+
+                return $this->redirect($this->generateUrl('jamn_homepage'));
+            }
+        }
+
+
+        return $this
+                        ->render(
+                                'JAMNotasFrontendBundle:Notas:crearOEditar.html.twig', array(
+                            'etiquetas' => $etiquetas,
+                            'notas' => $notas,
+                            'nota_seleccionada' => $nota_seleccionada,
+                            'new_form' => $newForm->createView(),
+                            'edita' => false,
+                                )
+        );
     }
 
     public function nuevanotaAction() {
@@ -126,7 +120,6 @@ class NotasController extends Controller {
 
                 $this->get('session')->setFlash('mensaje', 'Nota subida');
                 return $this->redirect($this->generateUrl('jamn_homepage'));
-
             }
         }
 
@@ -139,46 +132,87 @@ class NotasController extends Controller {
     public function editarAction() {
         $request = $this->getRequest();
         $session = $this->get('session');
+        $id = $request->get('id');
 
-        // Se recupera la nota que viene en la request para ser editada
 
-        $nota = array(
-            'id' => $request->get('id'),
-            'titulo' => 'nota',
-        );
+        list($etiquetas, $notas, $nota_seleccionada) = $this->dameEtiquetasYNotas();
+        $em = $this->getDoctrine()->getEntityManager();
+
+        $nota = $em->getRepository('JAMNotasFrontendBundle:Nota')->find($id);
+
+        if (!$nota) {
+            throw $this
+                    ->createNotFoundException('No se ha podido encontrar esa nota');
+        }
+        $editForm = $this->createForm(new NotaType(), $nota);
+        $deleteForm = $this->createDeleteForm($id);
 
 
         if ($request->getMethod() == 'POST') {
+            $editForm->bindRequest($request);
 
-            // si los datos que vienen en la request son buenos guarda la nota
+            if ($editForm->isValid()) {
+                $usuario = $this->get('security.context')->getToken()->getUser();
 
-            $session->setFlash('mensaje', 'Se debería editar la nota:'
-                    . $request->get('titulo') .
-                    '. Como aún no disponemos de un servicio para persistir los
-                         datos, la nota permanece igual');
+                $item = $request->get('item');
+                $this->actualizaEtiquetas($nota, $item['tags'], $usuario);
 
-            return $this->redirect($this->generateUrl('jamn_nota', array('id' => $request->get('id'))));
+                $nota->setFecha(new \DateTime());
+
+                if ($editForm['file']->getData() != '')
+                    $nota->upload($usuario->getUsername());
+
+                $em->persist($nota);
+
+                $em->flush();
+
+                return $this->redirect($this->generateUrl('jamn_homepage'));
+            }
         }
 
-        list($etiquetas, $notas, $nota_seleccionada) = $this->dameEtiquetasYNotas();
 
-        return $this->render('JAMNotasFrontendBundle:Notas:editar.html.twig', array(
-                    'etiquetas' => $etiquetas,
-                    'notas' => $notas,
-                    'nota_a_editar' => $nota,
-                ));
+
+        return $this
+                        ->render(
+                                'JAMNotasFrontendBundle:Notas:crearOEditar.html.twig', array(
+                            'etiquetas' => $etiquetas,
+                            'notas' => $notas,
+                            'nota_seleccionada' => $nota_seleccionada,
+                            'edit_form' => $editForm->createView(),
+                            'delete_form' => $deleteForm->createView(),
+                            'edita' => true,
+                                )
+        );
     }
 
     public function borrarAction() {
         $request = $this->getRequest();
         $session = $this->get('session');
 
-        // borrado de la nota $request->get('id');
+        $form = $this->createDeleteForm($request->get('id'));
 
-        $session->setFlash('mensaje', 'Se debería borrar la nota ' . $request->get('id'));
-        $session->set('nota.seleccionada.id', '');
+        $form->bindRequest($request);
 
-        return $this->forward('JAMNotasFrontendBundle:Notas:index');
+        if ($form->isValid()) {
+            $em = $this->getDoctrine()->getEntityManager();
+            $entity = $em
+                    ->getRepository('JAMNotasFrontendBundle:Nota')
+                    ->find($request->get('id'));
+
+            if (!$entity) {
+                throw $this->createNotFoundException('Esa nota no existe.');
+            }
+
+            $em->remove($entity);
+            $em->flush();
+
+            $session->set('nota.seleccionada.id', '');
+        }
+
+
+
+
+        return $this->redirect($this->generateUrl('jamn_homepage'));
     }
 
     public function miEspacioAction() {
@@ -218,13 +252,52 @@ class NotasController extends Controller {
         }
 
 
-        $nota_selecionada_id = $session->get('nota.seleccionada.id', '1');
-
-        $nota_seleccionada = $em->getRepository('JAMNotasFrontendBundle:Nota')->
-                findOneById($nota_selecionada_id);
-
+        $nota_seleccionada = null;
+        if (count($notas) > 0) {
+            $nota_selecionada_id = $session->get('nota.seleccionada.id');
+            if (!is_null($nota_selecionada_id) && $nota_selecionada_id != '') {
+                $nota_seleccionada = $em
+                        ->getRepository('JAMNotasFrontendBundle:Nota')
+                        ->findOneById($nota_selecionada_id);
+            } else {
+                $nota_seleccionada = $notas[0];
+            }
+        }
 
         return array($etiquetas, $notas, $nota_seleccionada);
+    }
+
+    protected function createDeleteForm($id) {
+        return $this->createFormBuilder(array('id' => $id))
+                        ->add('id', 'hidden')
+                        ->getForm()
+        ;
+    }
+
+    protected function actualizaEtiquetas($nota, $tags, $usuario) {
+
+        if (count($tags) == 0) {
+            $tags = array();
+        }
+        $em = $this->getDoctrine()->getEntityManager();
+
+        $nota->getEtiquetas()->clear();
+
+
+        foreach ($tags as $tag) {
+            $etiqueta = $em->getRepository('JAMNotasFrontendBundle:Etiqueta')->findOneByTextoAndUsuario($tag, $usuario);
+
+            if (!$etiqueta instanceof Etiqueta) {
+                $etiqueta = new Etiqueta();
+                $etiqueta->setTexto($tag);
+                $etiqueta->setUsuario($usuario);
+                $em->persist($etiqueta);
+            }
+
+            $nota->addEtiqueta($etiqueta);
+        }
+
+        $em->flush();
     }
 
 }

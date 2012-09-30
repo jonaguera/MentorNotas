@@ -7,13 +7,16 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Usuario
  *
  * @ORM\Table()
  * @ORM\Entity(repositoryClass="Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\UsuarioRepository")
-*/
+ * @UniqueEntity("email")
+ * @UniqueEntity("username")
+ */
 class Usuario implements AdvancedUserInterface {
 
     /**
@@ -285,14 +288,12 @@ class Usuario implements AdvancedUserInterface {
         $this->grupos = new ArrayCollection();
     }
 
-
     /**
      * Add notas
      *
      * @param Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Nota $notas
      */
-    public function addNota(\Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Nota $notas)
-    {
+    public function addNota(\Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Nota $notas) {
         $this->notas[] = $notas;
     }
 
@@ -301,8 +302,7 @@ class Usuario implements AdvancedUserInterface {
      *
      * @return Doctrine\Common\Collections\Collection 
      */
-    public function getNotas()
-    {
+    public function getNotas() {
         return $this->notas;
     }
 
@@ -311,8 +311,7 @@ class Usuario implements AdvancedUserInterface {
      *
      * @param Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Contrato $contratos
      */
-    public function addContrato(\Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Contrato $contratos)
-    {
+    public function addContrato(\Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Contrato $contratos) {
         $this->contratos[] = $contratos;
     }
 
@@ -321,8 +320,7 @@ class Usuario implements AdvancedUserInterface {
      *
      * @return Doctrine\Common\Collections\Collection 
      */
-    public function getContratos()
-    {
+    public function getContratos() {
         return $this->contratos;
     }
 
@@ -331,8 +329,7 @@ class Usuario implements AdvancedUserInterface {
      *
      * @param Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Etiqueta $etiquetas
      */
-    public function addEtiqueta(\Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Etiqueta $etiquetas)
-    {
+    public function addEtiqueta(\Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Etiqueta $etiquetas) {
         $this->etiquetas[] = $etiquetas;
     }
 
@@ -341,8 +338,7 @@ class Usuario implements AdvancedUserInterface {
      *
      * @return Doctrine\Common\Collections\Collection 
      */
-    public function getEtiquetas()
-    {
+    public function getEtiquetas() {
         return $this->etiquetas;
     }
 
@@ -351,8 +347,7 @@ class Usuario implements AdvancedUserInterface {
      *
      * @param Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Grupo $grupos
      */
-    public function addGrupo(\Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Grupo $grupos)
-    {
+    public function addGrupo(\Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Grupo $grupos) {
         $this->grupos[] = $grupos;
     }
 
@@ -361,55 +356,80 @@ class Usuario implements AdvancedUserInterface {
      *
      * @return Doctrine\Common\Collections\Collection 
      */
-    public function getGrupos()
-    {
+    public function getGrupos() {
         return $this->grupos;
     }
 
- //// Métodos de la interfaz AdvancedUserInterface que faltan ////
+    //// Métodos de la interfaz AdvancedUserInterface que faltan ////
 
-     public function eraseCredentials()
-     {
+    public function eraseCredentials() {
+        
+    }
 
-     }
+    function equals(UserInterface $user) {
+        return $user->getUsername() === $this->username;
+    }
 
-     function equals(UserInterface $user)
-     {
-         return $user->getUsername() === $this->username;
-     }
+    public function getRoles() {
+        $roles = array();
+        foreach ($this->grupos as $g) {
+            $roles[] = $g->getRol();
+        }
 
-     public function getRoles()
-     {
-         $roles = array();
-         foreach ($this->grupos as $g)
-         {
-             $roles[] = $g->getRol();
-         }
+        return $roles;
+    }
 
-         return $roles;
-     }
+    public function isAccountNonExpired() {
+        return true;
+    }
 
-     public function isAccountNonExpired()
-     {
-         return true;
-     }
+    public function isAccountNonLocked() {
+        /*    if (strtolower(substr($this->apellidos, 0, 1)) == "e" || strtolower(substr(strrev($this->nombre), 0, 1)) == "a") {
+          return false;
+          } */
+        return true;
+    }
 
-     public function isAccountNonLocked()
-     {
-         if (strtolower(substr($this->apellidos, 0, 1)) == "e" || strtolower(substr(strrev($this->nombre), 0, 1)) == "a") {
-             return false;
-         }
-         return true;
-     }
+    public function isCredentialsNonExpired() {
+        return true;
+    }
 
-     public function isCredentialsNonExpired()
-     {
-         return true;
-     }
+    public function isEnabled() {
+        return $this->getIsActive();
+    }
 
-     public function isEnabled()
-     {
-         return $this->getIsActive();
-     }
-    
+    /**
+     * @var string $password_again
+     *
+     * @Assert\NotBlank()
+     * @Assert\MaxLength(255)
+     * @Assert\Regex(
+     *     pattern="/^[\w-]+$/",
+     *     message="El password no puede contener más que caracteres alfanuméricos y guiones")
+     */
+    private $password_again;
+
+    /**
+     * Set password_again
+     *
+     * @param string $password_again
+     */
+    public function setPasswordAgain($password) {
+        $this->password_again = $password;
+    }
+
+    /**
+     * Get password_again
+     *
+     * @return string
+     */
+    public function getPasswordAgain() {
+        return $this->password_again;
+    }
+/**
+ * @Assert\True(message = "Has escrito dos password distintos")
+ */
+ public function isPasswordOK() {
+     return ($this->password === $this->password_again);
+ }
 }
