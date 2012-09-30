@@ -1,0 +1,7 @@
+Hola {{ usuario.nombre }} {{ usuario.apellidos }},
+
+Ya eres miembro premium de Mentor Notas. Esperamos que disfrutes del servicio.
+
+{{ url("jamn_activar_cuenta", {"token": usuario.tokenRegistro}) }}
+
+Un saludo!

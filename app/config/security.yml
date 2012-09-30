@@ -43,7 +43,7 @@ security:
             
         # anticortafuegos. Hace publicas ciertas rutas
         jamn_area_publica:
-            pattern: ^/notas/(registro|activar|tarifas|contratar|login$)
+            pattern: ^/notas/(registro|activar|login$)
             security: false
             # anonymous: ~
        

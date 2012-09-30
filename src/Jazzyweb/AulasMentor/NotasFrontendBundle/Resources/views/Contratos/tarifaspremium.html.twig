@@ -12,34 +12,26 @@
 <script src="{{ asset('bundles/jamnotasfrontend/vendors/jquery/js/jquery-ui-1.8.17.custom.min.js') }}" type="text/javascript"></script>
 <script src="{{ asset('bundles/jamnotasfrontend/vendors/jquery-layout/js/jquery.layout.min-1.2.0.js') }}" type="text/javascript"></script>
 <script src="{{ asset('bundles/jamnotasfrontend/js/ui.js') }}" type="text/javascript"></script>
-{% endblock %}  
+{% endblock %}
 {% block body %}
 <div id="mentornotas-wrapper">
     {% include 'JAMNotasFrontendBundle:Notas:cabecera_mini.html.twig' %}
-
-    <div class="mentornotas-content-login">
-
-    <h1>Formulario de Login</h1>
-
-    {% if error %}
-    <div class="error">{{ error.message }}</div>
-    {% endif %}
-
-    <form action="{{ path("jamn_login_check") }}" method="post" id="login">
-        <div>
-            <label for="username">Username</label>
-            <input type="text" id="username" name="_username"
-                   value="{{ last_username }}" />
-        </div>
-
-        <div>
-            <label for="password">Password</label>
-            <input type="password" id="password" name="_password" />
-        </div>
-
-        <input type="submit" class="symfony-button-grey" value="LOGIN" />
-    </form>
-    Si aún no eres usuario de Mentor Notas, <a href="{{ path("jamn_registro") }}" >registrate aquí</a>
-    </div>
+    <div class="mentornotas-content">
+        <h3>Bienvenido a las tarifas premium de Mentor Notas</h3>
+        <form action="{{ path('jamn_contratar') }}" method="post" {{ form_enctype(form) }}>
+            {{ form_errors(form) }}
+            <div>
+                {% if form_errors(form.tarifa)%}
+                    <div class="error">{{ form_errors(form.tarifa) }}</div>
+                {% endif %}
+                <label>Escoge una tarifa premium: </label>
+                <div>
+                    {{ form_widget(form.tarifa) }}
+                </div>
+            </div>
+            {{ form_rest(form) }}
+            <input type="submit" value="contratar" />
+        </form>
+    </div> 
 </div>
 {% endblock %}

@@ -31,7 +31,7 @@ class Contrato {
     /**
      * @var string $referencia
      *
-     * @ORM\Column(name="referencia", type="string", length=255)
+     * @ORM\Column(name="referencia", type="string", length=255, nullable=true)
      */
     private $referencia;
 
