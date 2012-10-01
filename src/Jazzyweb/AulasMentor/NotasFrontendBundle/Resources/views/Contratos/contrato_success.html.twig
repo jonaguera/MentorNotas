@@ -1,6 +1,21 @@
 {% extends '::base.html.twig' %}
+{% block stylesheets%}
+<link href="{{ asset('bundles/jamnotasfrontend/vendors/jquery/css/ui-lightness/jquery-ui-1.8.17.custom.css') }}" type="text/css" rel="stylesheet" />
+<link href="{{ asset('bundles/jamnotasfrontend/vendors/jquery-layout/css/layout-default-latest.css') }}" type="text/css" rel="stylesheet" />
+<link href="{{ asset('bundles/jamnotasfrontend/css/ui.css') }}" type="text/css" rel="stylesheet" />
+<link href="{{ asset('bundles/jamnotasfrontend/css/mentornotas.css') }}" type="text/css" rel="stylesheet" />
+<link href="{{ asset('bundles/jamnotasfrontend/css/ui-forms.css') }}" type="text/css" rel="stylesheet" />
+{% endblock%}
 
+{% block javascripts %}
+<script src="{{ asset('bundles/jamnotasfrontend/vendors/jquery/js/jquery-1.7.1.min.js') }}" type="text/javascript"></script>
+<script src="{{ asset('bundles/jamnotasfrontend/vendors/jquery/js/jquery-ui-1.8.17.custom.min.js') }}" type="text/javascript"></script>
+<script src="{{ asset('bundles/jamnotasfrontend/vendors/jquery-layout/js/jquery.layout.min-1.2.0.js') }}" type="text/javascript"></script>
+<script src="{{ asset('bundles/jamnotasfrontend/js/ui.js') }}" type="text/javascript"></script>
+{% endblock %}
 {% block body %}
+<div id="mentornotas-wrapper">
+    {% include 'JAMNotasFrontendBundle:Notas:cabecera_mini.html.twig' %}
 <div class="mentornotas-content-login">
 
 <h1>Hola {{ usuario.nombre }}</h1>
@@ -9,7 +24,8 @@
 
 <p>A partir de ahora podrás disfrutar de las funcionalidades exclusivas para usuarios premium.</p>
 
-<p><a href="{{ path('jamn_homepage') }}">Ir a página de login</a></p>
+<p><a href="{{ path('jamn_logout') }}">Ir a página de login</a></p>
 
+</div>
 </div>
 {% endblock %}

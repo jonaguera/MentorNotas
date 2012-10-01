@@ -9,7 +9,7 @@ class ContratosController extends Controller
 {
     public function tarifasPremiumAction()
     {
-        $form = $this->createFormBuilder()->add('tarifa', 'entity', array('class' => 'JAMNotasFrontendBundle:Tarifa','expanded' => false, 'multiple' => false))->getForm();
+        $form = $this->createFormBuilder()->add('tarifa', 'entity', array('class' => 'JAMNotasFrontendBundle:Tarifa','expanded' => true, 'multiple' => false))->getForm();
         return $this->render('JAMNotasFrontendBundle:Contratos:tarifaspremium.html.twig', array('form' => $form->createView()));
     }
 

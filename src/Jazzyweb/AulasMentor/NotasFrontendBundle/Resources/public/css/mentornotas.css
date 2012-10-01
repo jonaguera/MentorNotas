@@ -297,3 +297,19 @@ ul#menu
     margin-right: 10px;
     display: inline;
 }
+
+div #form_tarifa > label
+{
+    display: block;
+}
+
+div #form_tarifa > input
+{
+    margin-right: 5px;
+    float: left;
+}
+div #form_tarifa
+{
+    margin-top: 20px;
+    margin-bottom: 20px;
+}

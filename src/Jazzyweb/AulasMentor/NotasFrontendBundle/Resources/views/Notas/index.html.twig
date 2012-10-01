@@ -21,13 +21,12 @@
                     href="{{ path('jamn_editar', {'id': nota_seleccionada.id }) }}">
                    editar
                  </a>
+                <button id="btn_borrar" type="submit">Borrar</button>
                   <form id="form_borrar"
                        action="{{ path('jamn_borrar', { 'id': nota_seleccionada.id }) }}"
                        method="post">
                  {{ form_widget(delete_form) }}
-                <button id="btn_borrar" type="submit">Borrar</button>
-
-x                 </form>
+                  </form>
                  </span>
              </div>
          </div>
