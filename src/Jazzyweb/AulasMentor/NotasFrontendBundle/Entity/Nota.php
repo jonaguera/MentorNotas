@@ -53,6 +53,13 @@ class Nota {
      */
     private $path;
 
+    /**
+     * @var string $publicUrl
+     *
+     * @ORM\Column(name="publicUrl", type="string", length=255, nullable=true)
+     */
+    private $publicUrl;
+
 
     /**
     * @Assert\File(maxSize="6000000")
@@ -128,11 +135,7 @@ class Nota {
      * @param string $path
      */
     public function setPath($path) {
-        if (!$path)
-            $this->path = "sinruta";
-
         $this->path = $path;
-        
     }
 
     /**
@@ -142,6 +145,24 @@ class Nota {
      */
     public function getPath() {
         return $this->path;
+    }
+
+    /**
+     * Set public_url
+     *
+     * @param string $public_url
+     */
+    public function setPublicUrl($public_url) {
+        $this->public_url = $public_url;
+        
+    }    
+    /**
+     * Get public_url
+     *
+     * @return string 
+     */
+    public function getPublicUrl() {
+        return $this->public_url;
     }
 
 

@@ -91,6 +91,16 @@ $(document).ready( function() {
             primary: "ui-icon-pencil"
         }
     });
+    $( "#btn_compartir" ).button({                    
+        icons: {
+            primary: "ui-icon-unlocked"
+        }
+    });
+    $( "#btn_descompartir" ).button({                    
+        icons: {
+            primary: "ui-icon-locked"
+        }
+    });
     $( "#btn_borrar" ).button({
         icons: {
             primary: "ui-icon-trash"

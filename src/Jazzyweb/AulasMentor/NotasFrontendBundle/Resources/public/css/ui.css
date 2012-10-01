@@ -188,3 +188,11 @@ form input.activo{
 .powered{
     float: right;
 }
+
+div.nota-public
+{
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+    font-size: xx-small;
+}

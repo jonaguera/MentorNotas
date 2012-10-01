@@ -17,6 +17,19 @@
              </span>
 
              <span class="my-buttonset-right">
+                {% if nota_seleccionada.publicUrl %}
+
+                 <a id="btn_descompartir"
+                    href="{{ path('jamn_descompartir', {'id': nota_seleccionada.id }) }}">
+                   descompartir
+                 </a>                 
+                 {% else %}
+                 <a id="btn_compartir"
+                    href="{{ path('jamn_compartir', {'id': nota_seleccionada.id }) }}">
+                   compartir
+                 </a>
+                 {% endif %}
+
                  <a id="btn_editar"
                     href="{{ path('jamn_editar', {'id': nota_seleccionada.id }) }}">
                    editar
@@ -59,11 +72,21 @@
                             </span>
                          {% endfor %}
 
+
+
                          </div>
                          <div class="nota-detalle-content">
                          {{ nota_seleccionada.texto|raw }}
                          </div>
                  </div>
+                {% if nota_seleccionada.publicUrl %}
+                    <div class="nota-public">
+                        Url pública: <a style="display: block;" href="{{ url('jamn_public', { 'ruta': nota_seleccionada.publicUrl }) }}">
+                           {{ url('jamn_public', { 'ruta': nota_seleccionada.publicUrl }) }}
+                        </a>
+                    </div>
+                {% endif %}
+
              </div>
          </div>
      {% else %}

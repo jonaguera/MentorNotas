@@ -1,5 +1,18 @@
+jamn_compartir:
+     pattern:  /compartir/{id}
+     defaults: { _controller: JAMNotasFrontendBundle:Notas:compartir }
+
+jamn_descompartir:
+     pattern:  /descompartir/{id}
+     defaults: { _controller: JAMNotasFrontendBundle:Notas:descompartir }
+
+jamn_public:
+     pattern:  /public/{publicUrl}
+     defaults: { _controller: JAMNotasFrontendBundle:Notas:public }
+
 jamn_logout:
      pattern: /logout
+
 jamn_login:
      pattern: /login
      defaults: { _controller: JAMNotasFrontendBundle:Login:login }

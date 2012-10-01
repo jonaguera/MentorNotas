@@ -6,6 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Jazzyweb\AulasMentor\NotasFrontendBundle\Form\Type\NotaType;
 use Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Nota;
 use Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Etiqueta;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class NotasController extends Controller {
 
@@ -46,6 +47,7 @@ class NotasController extends Controller {
         } else {
             $deleteForm = null;
         }
+
         return $this->render('JAMNotasFrontendBundle:Notas:index.html.twig', array(
                     'etiquetas' => $etiquetas,
                     'notas' => $notas,
@@ -222,6 +224,70 @@ class NotasController extends Controller {
 
     public function rssAction() {
         
+    }
+
+    public function compartirAction() {
+        $request = $this->getRequest();
+
+        // Acciones para rellenar el campo ruta en la tabla Nota
+        $em = $this->getDoctrine()->getEntityManager();
+
+        $nota_seleccionada = $em
+                ->getRepository('JAMNotasFrontendBundle:Nota')
+                ->findOneById($request->get("id"));
+
+        if ($nota_seleccionada->getPublicUrl() == null)
+            $nota_seleccionada->setPublicUrl(substr(md5(uniqid(rand(), true)), 0, 32));
+
+        $em->persist($nota_seleccionada);
+        $em->flush();
+
+
+        // Redirigir a la nota
+        return $this->redirect($this->generateUrl('jamn_nota', array("id" => $request->get("id"))));
+    }
+
+    public function descompartirAction() {
+        $request = $this->getRequest();
+
+        // Acciones para vaciar el campo ruta en la tabla Nota
+        $em = $this->getDoctrine()->getEntityManager();
+
+        $nota_seleccionada = $em
+                ->getRepository('JAMNotasFrontendBundle:Nota')
+                ->findOneById($request->get("id"));
+
+        $nota_seleccionada->setPublicUrl(null);
+
+        $em->persist($nota_seleccionada);
+        $em->flush();
+
+        // Redirigir a la nota
+        return $this->redirect($this->generateUrl('jamn_nota', array("id" => $request->get("id"))));
+    }
+
+    public function publicAction() {
+        $request = $this->getRequest();
+
+        // Acciones para vaciar el campo ruta en la tabla Nota
+        $em = $this->getDoctrine()->getEntityManager();
+
+        $nota_seleccionada = $em
+                ->getRepository('JAMNotasFrontendBundle:Nota')
+                ->findOneByPublicUrl($request->get("publicUrl"));
+
+        if (!$nota_seleccionada) {
+            throw $this
+                    ->createNotFoundException('No se ha podido encontrar esa nota');
+        }
+
+        // Redirigir a la nota pública
+        return $this
+                        ->render(
+                                'JAMNotasFrontendBundle:Notas:vistapublica.html.twig', array(
+                            'nota_seleccionada' => $nota_seleccionada,
+                                )
+        );
     }
 
     protected function dameEtiquetasYNotas() {
