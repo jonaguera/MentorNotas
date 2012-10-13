@@ -1,3 +1,7 @@
+JAMNotasFrontendBundle_tarifa:
+     resource: "@JAMNotasFrontendBundle/Resources/config/routing/tarifa.yml"
+     prefix:   /tarifa
+
 jamn_compartir:
      pattern:  /compartir/{id}
      defaults: { _controller: JAMNotasFrontendBundle:Notas:compartir }
