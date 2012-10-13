@@ -81,8 +81,8 @@
                  </div>
                 {% if nota_seleccionada.publicUrl %}
                     <div class="nota-public">
-                        Url pública: <a style="display: block;" href="{{ url('jamn_public', { 'ruta': nota_seleccionada.publicUrl }) }}">
-                           {{ url('jamn_public', { 'ruta': nota_seleccionada.publicUrl }) }}
+                        Url pública: <a style="display: block;" href="{{ url('jamn_public', { 'publicUrl': nota_seleccionada.publicUrl }) }}">
+                           {{ url('jamn_public', { 'publicUrl': nota_seleccionada.publicUrl }) }}
                         </a>
                     </div>
                 {% endif %}

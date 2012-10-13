@@ -153,7 +153,7 @@ class Nota {
      * @param string $public_url
      */
     public function setPublicUrl($public_url) {
-        $this->public_url = $public_url;
+        $this->publicUrl = $public_url;
         
     }    
     /**
@@ -162,7 +162,7 @@ class Nota {
      * @return string 
      */
     public function getPublicUrl() {
-        return $this->public_url;
+        return $this->publicUrl;
     }
 
 
