@@ -426,10 +426,14 @@ class Usuario implements AdvancedUserInterface {
     public function getPasswordAgain() {
         return $this->password_again;
     }
-/**
- * @Assert\True(message = "Has escrito dos password distintos")
- */
- public function isPasswordOK() {
-     return ($this->password === $this->password_again);
- }
+
+    /**
+     * @Assert\True(message = "Has escrito dos password distintos")
+     */
+    public function isPasswordOK() {
+        return ($this->password === $this->password_again);
+    }
+    public function __toString(){
+        return $this->username;
+    }
 }

@@ -4,7 +4,7 @@ imports:
 
 framework:
     #esi:             ~
-    #translator:      { fallback: %locale% }
+    translator:      { fallback: %locale% }
     secret:          %secret%
     charset:         UTF-8
     router:          { resource: "%kernel.root_dir%/config/routing.yml" }
@@ -59,3 +59,26 @@ swiftmailer:
 jms_security_extra:
     secure_controllers:  true
     secure_all_services: false
+
+sonata_admin:
+    title: Administración de la aplicación MentorNotas
+    title_logo: bundles/sonataadmin/logo_title.png
+    templates:
+      # default global templates
+      layout: SonataAdminBundle::standard_layout.html.twig
+      ajax: SonataAdminBundle::ajax_layout.html.twig
+      dashboard: SonataAdminBundle:Core:dashboard.html.twig
+      # default actions templates, should extend a global templates
+      list: SonataAdminBundle:CRUD:list.html.twig
+      show: SonataAdminBundle:CRUD:show.html.twig
+      edit: SonataAdminBundle:CRUD:edit.html.twig
+
+    dashboard:
+        blocks:
+          - {position: left, type: sonata.admin.block.admin_list }
+      
+sonata_block:
+    default_contexts: [cms]
+    blocks:
+      sonata.admin.block.admin_list:
+        contexts: [admin]

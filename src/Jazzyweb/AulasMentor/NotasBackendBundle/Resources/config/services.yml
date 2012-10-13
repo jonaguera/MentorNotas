@@ -2,6 +2,43 @@ parameters:
 #    jam_notas_backend.example.class: Jazzyweb\AulasMentor\NotasBackendBundle\Example
 
 services:
-#    jam_notas_backend.example:
-#        class: %jam_notas_backend.example.class%
-#        arguments: [@service_id, "plain_value", %parameter%]
+   sonata.notas_backend.admin.tarifa:
+       class: Jazzyweb\AulasMentor\NotasBackendBundle\Admin\TarifaAdmin
+       tags:
+          - { name: sonata.admin, manager_type: orm, group: 'Contratos', label: 'Tarifas' }
+       arguments:
+          - null
+          - Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Tarifa
+          - JAMNotasBackendBundle:Admin
+   sonata.notas_backend.admin.contratos:
+      class: Jazzyweb\AulasMentor\NotasBackendBundle\Admin\ContratoAdmin
+      tags:
+       - { name: sonata.admin, manager_type: orm, group: 'Contratos', label: Contratos }
+      arguments:
+       - null
+       - Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Contrato
+       - JAMNotasBackendBundle:Admin
+   sonata.notas_backend.admin.grupos:
+      class: Jazzyweb\AulasMentor\NotasBackendBundle\Admin\GrupoAdmin
+      tags:
+       - { name: sonata.admin, manager_type: orm, group: 'Administracion', label: Grupos }
+      arguments:
+       - null
+       - Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Grupo
+       - JAMNotasBackendBundle:Admin
+   sonata.notas_backend.admin.publicidad:
+      class: Jazzyweb\AulasMentor\NotasBackendBundle\Admin\PublicidadAdmin
+      tags:
+       - { name: sonata.admin, manager_type: orm, group: 'Publicidad', label: Publicidad }
+      arguments:
+       - null
+       - Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Publicidad
+       - JAMNotasBackendBundle:Admin       
+   sonata.notas_backend.admin.usuario:
+      class: Jazzyweb\AulasMentor\NotasBackendBundle\Admin\UsuarioAdmin
+      tags:
+       - { name: sonata.admin, manager_type: orm, group: 'Administración', label: Usuarios }
+      arguments:
+       - null
+       - Jazzyweb\AulasMentor\NotasFrontendBundle\Entity\Usuario
+       - JAMNotasBackendBundle:UsuarioAdmin
