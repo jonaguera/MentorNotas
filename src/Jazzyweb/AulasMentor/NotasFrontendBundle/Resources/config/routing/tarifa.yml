@@ -1,0 +1,30 @@
+tarifa:
+    pattern:  /
+    defaults: { _controller: "JAMNotasFrontendBundle:Tarifa:index" }
+
+tarifa_show:
+    pattern:  /{id}/show
+    defaults: { _controller: "JAMNotasFrontendBundle:Tarifa:show" }
+
+tarifa_new:
+    pattern:  /new
+    defaults: { _controller: "JAMNotasFrontendBundle:Tarifa:new" }
+
+tarifa_create:
+    pattern:  /create
+    defaults: { _controller: "JAMNotasFrontendBundle:Tarifa:create" }
+    requirements: { _method: post }
+
+tarifa_edit:
+    pattern:  /{id}/edit
+    defaults: { _controller: "JAMNotasFrontendBundle:Tarifa:edit" }
+
+tarifa_update:
+    pattern:  /{id}/update
+    defaults: { _controller: "JAMNotasFrontendBundle:Tarifa:update" }
+    requirements: { _method: post }
+
+tarifa_delete:
+    pattern:  /{id}/delete
+    defaults: { _controller: "JAMNotasFrontendBundle:Tarifa:delete" }
+    requirements: { _method: post }
